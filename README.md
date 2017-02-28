@@ -1,7 +1,7 @@
 phovea_demos [![Phovea][phovea-image]][phovea-url] [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
 =====================
 
-A demonstration of how to use various phovea components
+A demonstration of how to use various Phovea components. Look at the console output and the code to see what's going on. 
 
 Installation
 ------------
@@ -12,19 +12,6 @@ cd phovea_demos
 npm install
 ```
 
-Testing
--------
-
-```
-npm test
-```
-
-Building
---------
-
-```
-npm run build
-```
 
 Launching
 ---------
