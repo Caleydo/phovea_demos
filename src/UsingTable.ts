@@ -6,60 +6,100 @@ import {tsv} from 'd3-request';
 import {ICategoricalVector, INumericalVector} from 'phovea_core/src/vector/IVector';
 import {VALUE_TYPE_CATEGORICAL, VALUE_TYPE_INT} from 'phovea_core/src/datatype';
 
-
+/**
+ *
+ * This class demonstrates the use of a heterogeneous table.
+ *
+ * The relevant Phovea Classes:
+ *
+ * Accessing datasets using various functions:
+ * https://github.com/phovea/phovea_core/blob/develop/src/data.ts
+ * The phovea table interface:
+ * https://github.com/phovea/phovea_core/blob/develop/src/table.ts
+ *
+ * The phovea vector:
+ * https://github.com/phovea/phovea_core/blob/develop/src/vector/IVector.ts
+ *
+ */
 export default class UsingTable {
 
-  /**
-   *
-   * This function demonstrates the use of a heterogeneous table.
-   *
-   * The relevant Phovea Classes:
-   *
-   * Accessing datasets using various functions:
-   * https://github.com/phovea/phovea_core/blob/develop/src/data.ts
-   * The phovea table interface:
-   * https://github.com/phovea/phovea_core/blob/develop/src/table.ts
-   *
-   * The phovea vector:
-   * https://github.com/phovea/phovea_core/blob/develop/src/vector/IVector.ts
-   *
-   */
 
-  public async demoDatasets(table: ITable) {
+  public async demoTable() {
+    let table: ITable = await this.loadLocalData(csvUrl);
+
+    // Loading table from server - no server used in the demo ATM
+    // let table: ITable = await this.loadDataFromServer();
+
+    this.demoTableUsage(table);
+  }
+
+  /**
+   * Load a datset from a local file
+   * @returns {Promise<ITable>}
+   */
+  public async loadLocalData(csvURL) {
+    console.log("Loading Data from the URL defined in csvUrl");
+    const data = await this.tsvAsync(csvUrl);
+    console.log("The data as an array of objects: ")
+    console.log(data)
+    const table = asTable(data);
+    return table;
+  }
+
+  private async tsvAsync(url) {
+    return new Promise<any[]>((resolve, reject) => {
+      tsv(url, (error, data) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(data);
+      });
+    });
+  }
+
+
+  /**
+   * This demonstrates how to retreive a table from a server.
+   * @returns {Promise<void>}
+   */
+  public async loadDataFromServer() {
+    console.log("Loading Data from the a Server");
+    // listData() returns a list of all datasets loaded by the server
+    // notice the await keyword - you'll see an explanation below
+    const allDatasets = await listData();
+    console.log('All loaded datasets:');
+    console.log(allDatasets);
+
+    // we could use those dataset to filter them based on their description and pick the one(s) we're interested in
+    // here we pick the first dataset and cast it to ITable - by default the datasets are returned as IDataType
+    let table: ITable = <ITable> allDatasets[0];
+
+    // retrieving a dataset by name. Note that only the first dataset will be returned.
+    table = <ITable> await getFirstByName('Artists');
+    console.log('Artist dataset retrieved by name:');
+    console.log(table);
+
+    // retrieving a dataset by it's ID
+    table = <ITable> await getById("numer-one-artists");
+
+    return table;
+
+  }
+
+
+  /**
+   * This demonstrates a wide variety of possible usages for the table.
+   * @param table
+   * @returns {Promise<void>}
+   */
+  public async demoTableUsage(table: ITable) {
 
     console.log('=============================');
     console.log('RETRIEVING DATA');
     console.log('=============================');
 
-
-    // this is true in the server case, when we don't want to pass a dataset into this.
-    if (table == null) {
-      // listData() returns a list of all datasets loaded by the server
-      // notice the await keyword - you'll see an explanation below
-      const allDatasets = await listData();
-      console.log('All loaded datasets:');
-      console.log(allDatasets);
-
-      // we could use those dataset to filter them based on their description and pick the one(s) we're interested in
-
-      // here we pick the first dataset and cast it to ITable - by default the datasets are returned as IDataType
-      table = <ITable> allDatasets[0];
-
-      // retrieving a dataset by name
-      table = <ITable> await getFirstByName('Artists');
-      table = <ITable> await getFirstByName('big-decent-clipped-38');
-      //console.log('artists dataset retrieved by name:');
-      console.log('Artist dataset retrieved by name:');
-      console.log(table);
-
-      console.log('big-decent-clipped-38 dataset retrieved by name:');
-      console.log(table);
-
-
-    } else {
-      console.log('The Table as passed via parameter:');
-      console.log(table);
-    }
+    console.log('The Table as passed via parameter:');
+    console.log(table);
 
     console.log('=============================');
     console.log('ACCESSING METADATA');
@@ -77,7 +117,6 @@ export default class UsingTable {
     console.log('Table Name: ' + table.desc.name);
 
 
-
     console.log('=============================');
     console.log('ACCESSING COLUMNS/VECTORS');
     console.log('=============================');
@@ -89,14 +128,10 @@ export default class UsingTable {
     console.log('Length:' + vector.length);
     console.log('IDType:' + vector.idtype);
 
-    // TODO: retrieve a vector by name
 
     // Access the data of a vector by name:
     console.log('Accessing artist column by name from Artists dataset:');
     console.log(await table.colData('artist'));
-
-    console.log('Accessing RelativeID column by name from big-decent-clipped-38 dataset:');
-    console.log(await table.colData('RelativeID'));
 
 
     console.log('=============================');
@@ -201,35 +236,7 @@ export default class UsingTable {
     console.log('New view on a table that only contains the first two columns and the first five rows:');
     slicedTable = table.view('(0,1,2,3,4),(0:2)');
     console.log(slicedTable);
-
-
   }
-
-
-
-  public async loadLocalData() {
-
-    console.log("Loading Data from: " + csvUrl);
-    const data = await this.tsvAsync(csvUrl);
-    console.log("The data as an array of objects: ")
-    console.log(data)
-    const table = asTable(data);
-    this.demoDatasets(table);
-    return table;
-  }
-
-  private async tsvAsync(url) {
-      return new Promise<any[]>((resolve, reject) => {
-        tsv(url, (error, data) => {
-          if (error) {
-            reject(error);
-          }
-          resolve(data);
-        });
-      });
-    }
-
-
 }
 
 /**

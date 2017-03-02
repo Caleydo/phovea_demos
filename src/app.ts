@@ -38,7 +38,7 @@ export class App {
     this.$node.html("<p>This plugin demonstrates the usage of various Phovea concepts.</p> Currently this is limited to the Table.</p> <p> Open a console to look at the output</p>");
 
     const usingTables = UsingTable.create();
-    usingTables.loadLocalData();
+    usingTables.demoTable();
 
 
     return Promise.resolve(null);
