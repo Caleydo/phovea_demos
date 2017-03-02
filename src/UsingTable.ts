@@ -5,6 +5,7 @@ import * as csvUrl from 'file-loader!../data/number_one_artists.csv';
 import {tsv} from 'd3-request';
 import {ICategoricalVector, INumericalVector} from 'phovea_core/src/vector/IVector';
 import {VALUE_TYPE_CATEGORICAL, VALUE_TYPE_INT} from 'phovea_core/src/datatype';
+import {Range1D} from 'phovea_core/src/range'
 
 /**
  *
@@ -37,16 +38,16 @@ export default class UsingTable {
    * Load a datset from a local file
    * @returns {Promise<ITable>}
    */
-  public async loadLocalData(csvURL) {
-    console.log("Loading Data from the URL defined in csvUrl");
-    const data = await this.tsvAsync(csvUrl);
-    console.log("The data as an array of objects: ")
+  public async loadLocalData(csvURL: string) {
+    console.log('Loading Data from the URL defined in csvUrl');
+    const data = await UsingTable.tsvAsync(csvUrl);
+    console.log('The data as an array of objects: ')
     console.log(data)
     const table = asTable(data);
     return table;
   }
 
-  private async tsvAsync(url) {
+  private static async tsvAsync(url: string) {
     return new Promise<any[]>((resolve, reject) => {
       tsv(url, (error, data) => {
         if (error) {
@@ -63,7 +64,7 @@ export default class UsingTable {
    * @returns {Promise<void>}
    */
   public async loadDataFromServer() {
-    console.log("Loading Data from the a Server");
+    console.log('Loading Data from the a Server');
     // listData() returns a list of all datasets loaded by the server
     // notice the await keyword - you'll see an explanation below
     const allDatasets = await listData();
@@ -80,7 +81,7 @@ export default class UsingTable {
     console.log(table);
 
     // retrieving a dataset by it's ID
-    table = <ITable> await getById("numer-one-artists");
+    table = <ITable> await getById('numer-one-artists');
 
     return table;
 
@@ -205,7 +206,7 @@ export default class UsingTable {
       console.log('The categories of the fourth column:');
       // these also contain colors that can be easily used in d3.
       console.log(catVector.desc.value.categories);
-      console.log('The histogram: BROKEN');
+      console.log('The histogram:');
       console.log(await catVector.hist());
     }
 
