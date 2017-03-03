@@ -35,7 +35,7 @@ export class App {
    * @returns {Promise<App>}
    */
   private build() {
-    this.$node.html("<p>This plugin demonstrates the usage of various Phovea concepts.</p> Currently this is limited to the Table.</p> <p> Open a console to look at the output</p>");
+    this.$node.html('<p>This plugin demonstrates the usage of various Phovea concepts.</p> Currently this is limited to the Table.</p> <p> Open a console to look at the output</p>');
 
     const usingTables = UsingTable.create();
     usingTables.demoTable();

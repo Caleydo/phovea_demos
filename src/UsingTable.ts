@@ -5,7 +5,6 @@ import * as csvUrl from 'file-loader!../data/number_one_artists.csv';
 import {tsv} from 'd3-request';
 import {ICategoricalVector, INumericalVector} from 'phovea_core/src/vector/IVector';
 import {VALUE_TYPE_CATEGORICAL, VALUE_TYPE_INT} from 'phovea_core/src/datatype';
-import {Range1D} from 'phovea_core/src/range'
 
 /**
  *
@@ -26,7 +25,7 @@ export default class UsingTable {
 
 
   public async demoTable() {
-    let table: ITable = await this.loadLocalData(csvUrl);
+    const table: ITable = await this.loadLocalData(csvUrl);
 
     // Loading table from server - no server used in the demo ATM
     // let table: ITable = await this.loadDataFromServer();
@@ -41,8 +40,8 @@ export default class UsingTable {
   public async loadLocalData(csvURL: string) {
     console.log('Loading Data from the URL defined in csvUrl');
     const data = await UsingTable.tsvAsync(csvUrl);
-    console.log('The data as an array of objects: ')
-    console.log(data)
+    console.log('The data as an array of objects: ');
+    console.log(data);
     const table = asTable(data);
     return table;
   }
