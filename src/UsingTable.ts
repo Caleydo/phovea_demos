@@ -5,6 +5,7 @@ import * as csvUrl from 'file-loader!../data/number_one_artists.csv';
 import {tsv} from 'd3-request';
 import {ICategoricalVector, INumericalVector} from 'phovea_core/src/vector/IVector';
 import {VALUE_TYPE_CATEGORICAL, VALUE_TYPE_INT} from 'phovea_core/src/datatype';
+import {range, Range, Range1D} from 'phovea_core/src/range';
 
 /**
  *
@@ -233,9 +234,27 @@ export default class UsingTable {
     let slicedTable = table.view('(0:-1),(0:2)');
     console.log(slicedTable);
 
+    console.log('A range with all values:');
+    const fullRange = range();
+    console.log(fullRange);
+
+    console.log('A range with selected indices:');
+    const selectedIndicesRange = range([0, 1, 2, 3]);
+    console.log(selectedIndicesRange);
+
+    console.log('A range with from-to values:');
+    const fromToRange = range(0, 5);
+    console.log(fromToRange);
+
+    // TODO: there seems to be no way to create a multi-dim range based on existing ranges? like this:
+    // const mutiDimRange = range(selectedIndicesRange, fromToRange);
+
+    const mutiDimRange = range([0, 1, 2, 3, 4], [1, 4, 3]);
+
+    // TODO: it's unclear how you'd create a range for both rows and columns...
     console.log('New view on a table that only contains the first two columns and the first five rows:');
-    slicedTable = table.view('(0,1,2,3,4),(0:2)');
-    console.log(slicedTable);
+    slicedTable = table.view(mutiDimRange);
+    console.log(await slicedTable.cols());
   }
 }
 
