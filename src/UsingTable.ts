@@ -5,7 +5,7 @@ import * as csvUrl from 'file-loader!../data/number_one_artists.csv';
 import {tsv} from 'd3-request';
 import {ICategoricalVector, INumericalVector} from 'phovea_core/src/vector/IVector';
 import {VALUE_TYPE_CATEGORICAL, VALUE_TYPE_INT} from 'phovea_core/src/datatype';
-import {range, list, join, Range, Range1D} from 'phovea_core/src/range';
+import {range, list, join, Range, Range1D, all} from 'phovea_core/src/range';
 
 /**
  *
@@ -199,13 +199,13 @@ export default class UsingTable {
 
 
     console.log('The data type of the fourth column (categories):');
-    console.log(table.col(3).desc.value.type);
+    console.log(table.col(3).valuetype);
 
-    if (table.col(3).desc.value.type === VALUE_TYPE_CATEGORICAL) {
+    if (table.col(3).valuetype.type === VALUE_TYPE_CATEGORICAL) {
       const catVector = <ICategoricalVector> table.col(3);
       console.log('The categories of the fourth column:');
       // these also contain colors that can be easily used in d3.
-      console.log(catVector.desc.value.categories);
+      console.log(catVector.valuetype.categories);
       console.log('The histogram:');
       console.log(await catVector.hist());
     }
@@ -215,7 +215,7 @@ export default class UsingTable {
     console.log('NUMERICAL VECTORS & STATS');
     console.log('=============================');
 
-    if (table.col(5).desc.value.type === VALUE_TYPE_INT) {
+    if (table.col(5).valuetype.type === VALUE_TYPE_INT) {
       const numVector = <INumericalVector> table.col(5);
       console.log('3rd value from the 5th vector:' + await numVector.at(3));
       console.log('Stats on a vector:');
@@ -235,7 +235,7 @@ export default class UsingTable {
     // console.log(slicedTable);
 
     console.log('A range with all values:');
-    const fullRange = range();
+    const fullRange = all();
     console.log(fullRange);
 
     console.log('A range from 0 to 10 that skipse every second element:');
@@ -247,10 +247,10 @@ export default class UsingTable {
     console.log(fromToRange);
 
 
-    const fiveColsAllRows = join(fromToRange, new Range());
+    const fiveColsAllRows = join(all(), fromToRange);
     const columnSlicedTable = table.view(fiveColsAllRows);
     // FIXME: wrong
-    console.log(columnSlicedTable.desc.size);
+    console.log(columnSlicedTable.dim);
     console.log('A table with five columns and all rows:');
     console.log(columnSlicedTable);
 
@@ -261,13 +261,13 @@ export default class UsingTable {
     const listRange = list([0, 1, 2]);
     console.log(listRange);
 
-    const allRange = new Range();
+    const allRange = all();
     console.log(allRange);
 
     // We join two ranges so that we can create a TableView following the convention, columns first, rows second
     // Here we define that we want to keep all columns but only the rows 0, 1, 2
     const mutiDimRange = join(listRange, allRange);
-    console.log('The multidimensional range, columns first, rows second:');
+    console.log('The multidimensional range, rows first, column second:');
     console.log(mutiDimRange);
 
     console.log('This is supposed to slice the table by preserving ALL columns and the rows 0,1,2:');
@@ -275,19 +275,19 @@ export default class UsingTable {
     console.log(slicedTable);
 
     console.log('The size of the Table, expecting 3, 12 as in 12 columns and 3 rows. Is WRONG 12, 14 - no idea where the 14 came from');
-    console.log(slicedTable.desc.size);
+    console.log(slicedTable.dim);
 
     console.log('The length of the first vector, expecting 3, is WRONG 12');
-    console.log(await slicedTable.cols()[0].desc.size);
+    console.log(slicedTable.cols()[0].length);
 
-    const columns = await slicedTable.cols();
+    const columns = slicedTable.cols();
     console.log(columns);
 
-    // if (columns[2].desc.value.type === VALUE_TYPE_CATEGORICAL) {
+    // if (columns[2].valuetype.type === VALUE_TYPE_CATEGORICAL) {
     //   const catVector = <ICategoricalVector> table.col(3);
     //   console.log('The categories of the fourth column out of a sliced table:');
     //   // these also contain colors that can be easily used in d3.
-    //   console.log(catVector.desc.value.categories);
+    //   console.log(catVector.valuetype.categories);
     //   console.log('The histogram:');
     //   console.log(await catVector.hist());
     // }
@@ -296,14 +296,14 @@ export default class UsingTable {
     // console.log(stringSlicedTable);
     //
     // console.log('The size of the String Sliced Table, expecting 12, 3 as in 12 columns and 3 rows. Is WRONG 12, 14 - no idea where the 14 came from');
-    // console.log(stringSlicedTable.desc.size);
+    // console.log(stringSlicedTable.dim);
     //
     // console.log('The length of the first vector, expecting 3, is WRONG 12');
     // console.log(await stringSlicedTable.cols());
     //
     // const myVector = await stringSlicedTable.col(1);
     //
-    // console.log(myVector.desc.size);
+    // console.log(myVector.dim);
 
 
   }
