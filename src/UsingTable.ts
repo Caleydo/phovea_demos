@@ -247,6 +247,12 @@ export default class UsingTable {
     console.log(fromToRange);
 
 
+    const fiveColsAllRows = join(fromToRange, new Range());
+    const columnSlicedTable = table.view(fiveColsAllRows);
+    // FIXME: wrong
+    console.log(columnSlicedTable.desc.size);
+    console.log('A table with five columns and all rows:');
+    console.log(columnSlicedTable);
 
 
     // FIXME: demonstration of the row slicing bug
@@ -260,7 +266,7 @@ export default class UsingTable {
 
     // We join two ranges so that we can create a TableView following the convention, columns first, rows second
     // Here we define that we want to keep all columns but only the rows 0, 1, 2
-    const mutiDimRange = join(allRange, listRange);
+    const mutiDimRange = join(listRange, allRange);
     console.log('The multidimensional range, columns first, rows second:');
     console.log(mutiDimRange);
 
@@ -268,11 +274,38 @@ export default class UsingTable {
     const slicedTable = table.view(mutiDimRange);
     console.log(slicedTable);
 
-    console.log('The size of the Table, expecting 12, 3 as in 12 columns and 3 rows. Is WRONG 12, 14 - no idea where the 14 came from');
+    console.log('The size of the Table, expecting 3, 12 as in 12 columns and 3 rows. Is WRONG 12, 14 - no idea where the 14 came from');
     console.log(slicedTable.desc.size);
 
     console.log('The length of the first vector, expecting 3, is WRONG 12');
     console.log(await slicedTable.cols()[0].desc.size);
+
+    const columns = await slicedTable.cols();
+    console.log(columns);
+
+    // if (columns[2].desc.value.type === VALUE_TYPE_CATEGORICAL) {
+    //   const catVector = <ICategoricalVector> table.col(3);
+    //   console.log('The categories of the fourth column out of a sliced table:');
+    //   // these also contain colors that can be easily used in d3.
+    //   console.log(catVector.desc.value.categories);
+    //   console.log('The histogram:');
+    //   console.log(await catVector.hist());
+    // }
+
+    // const stringSlicedTable = table.view('(0,3),(0,5)');
+    // console.log(stringSlicedTable);
+    //
+    // console.log('The size of the String Sliced Table, expecting 12, 3 as in 12 columns and 3 rows. Is WRONG 12, 14 - no idea where the 14 came from');
+    // console.log(stringSlicedTable.desc.size);
+    //
+    // console.log('The length of the first vector, expecting 3, is WRONG 12');
+    // console.log(await stringSlicedTable.cols());
+    //
+    // const myVector = await stringSlicedTable.col(1);
+    //
+    // console.log(myVector.desc.size);
+
+
   }
 }
 
