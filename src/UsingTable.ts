@@ -278,7 +278,9 @@ export default class UsingTable {
     console.log(slicedTable.dim);
 
     console.log('The length of the first vector, expecting 3, is WRONG 12');
-    console.log(slicedTable.cols()[0].length);
+
+    const myFCol = await slicedTable.cols()[0];
+    console.log(await myFCol.data(new Range()));
 
     const columns = slicedTable.cols();
     console.log(columns);
