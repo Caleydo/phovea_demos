@@ -1,7 +1,7 @@
 ID	artist	origin	career status	gender	first album (year)	studio albums (count)	year of birth	age (years)	age at first album (years)	start of career (year)	end of career (year)	in business (years)	in business at first album (years)
-0	Rihanna	Barbados	active	female	2005	7	1988	26	17	2003		11	2
-1	Britney Spears	US	active	female	1999	8	1981	33	18	1992		22	7
-2	Madonna	US	active	female	1983	12	1958	56	25	1979		35	4
+0	Rihanna	Barbados		female	2005	7	1988	26	17	2003		11	2
+1	Britney Spears		active	female	1999	8	1981	33	18	1992		22	7
+2	Madonna	US	active		1983	12	1958	56	25	1979		35	4
 3	Whitney Houston	US	inactive	female	1985	7	1963	49	22	1977	2012	35	8
 4	Michael Jackson	US	inactive	male	1972	10	1958	51	14	1968	2009	41	4
 5	Eminem	US	active	male	1996	8	1972	42	24	1990		24	6
