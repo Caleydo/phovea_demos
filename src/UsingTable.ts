@@ -36,32 +36,36 @@ export default class UsingTable {
    * @return {Promise<void>}
    */
   public async demoTable() {
-    await this.loadLocalData(csvUrl);
+    await this.loadLocalData(csvUrl, true);
     // Loading table from server - no server used in the demo ATM
     // await this.loadDataFromServer();
     //await this.basicTableUsage();
     //await this.gettingStats();
-    await this.rangesAndSlicing();
+    //await this.rangesAndSlicing();
+    await this.accessingDataWithRanges();
     //await this.tableViews();
-
-
   }
 
   /**
    * Load a datset from a local file and stores it in this.table.
    */
-  public async loadLocalData(csvURL: string) {
-    console.log('=============================');
-    console.log('Loading DATA');
-    console.log('=============================');
+  public async loadLocalData(csvURL: string, silent: boolean = false) {
+    if (!silent) {
+      console.log('=============================');
+      console.log('Loading DATA');
+      console.log('=============================');
 
-    console.log('Loading Data from the URL defined in csvUrl');
+      console.log('Loading Data from the URL defined in csvUrl');
+    }
     const data = await UsingTable.tsvAsync(csvUrl);
-    console.log('The data as an array of objects: ');
-    console.log(data);
     this.table = asTable(data);
-    console.log('The table in the ITable datastructure');
-    console.log(this.table);
+
+    if (!silent) {
+      console.log('The data as an array of objects: ');
+      console.log(data);
+      console.log('The table in the ITable datastructure');
+      console.log(this.table);
+    }
   }
 
   /**
@@ -187,6 +191,11 @@ export default class UsingTable {
     const firstValueOfFirstVector = await this.table.at(0, 0);
     console.log('Accessing the Table for the first element: ' + firstValueOfFirstVector);
 
+    console.log('The whole dataset as a 2D array; row based:');
+    console.log(await this.table.data());
+
+    console.log('The whole dataset as objects corresponding to one row each:');
+    console.log(await this.table.objects());
   }
 
   /**
@@ -228,7 +237,6 @@ export default class UsingTable {
    * https://github.com/phovea/phovea_core/blob/develop/src/range/index.ts
    */
   public async rangesAndSlicing() {
-
     console.log('=============================');
     console.log('Ranges');
     console.log('=============================');
@@ -247,52 +255,86 @@ export default class UsingTable {
     fullRange = new Range();
     console.log('The full vector:', await vector.data(fullRange));
 
-    let selectedIndicesRange = range([3]);
+    let selectedIndicesRange = range(3);
     console.log('A range applied to the vector starting at index 3, up to the end');
     console.log(await vector.data(selectedIndicesRange));
 
 
-    selectedIndicesRange = range([3, 11]);
+    selectedIndicesRange = range(3, 11);
     console.log('A range applied to the vector starting at index 3, up to (and excluding) 11');
     console.log(await vector.data(selectedIndicesRange));
 
-    selectedIndicesRange = range([3, 11, 2]);
+    selectedIndicesRange = range(3, 11, 2);
     console.log('A range applied to the vector starting at index 11, up to (and excluding) 2, using every element' +
       ' backwards');
     console.log(await vector.data(selectedIndicesRange));
 
-        selectedIndicesRange = range([11, 2, -1]);
+    // using an array with from / to / step
+    selectedIndicesRange = range([11, 2, -1]);
     console.log('A range applied to the vector starting at index 3, up to (and excluding) 11, using every other element');
     console.log(await vector.data(selectedIndicesRange));
 
+    // using an object with explicit from / to / step
     selectedIndicesRange = range({from: 4, to: 12, step: 3});
     console.log('A range using object notation applied to the vector starting at index 4, up to (and excluding)' +
       ' 12, using every third element');
     console.log(await vector.data(selectedIndicesRange));
 
 
-    console.log('A range defined using a list of indices (2, 5, 1, 13)');
+    // using an array of list indices
     let listRange = list([2, 5, 1, 13]);
+    console.log('A range defined using a list of indices (2, 5, 1, 13)');
     console.log(await vector.data(listRange));
 
+    // using indices as parameters
+    listRange = list(13, 12, 11);
     console.log('A range defined using a list of indices (13, 12, 11)');
-    listRange = list([13, 12, 11]);
     console.log(await vector.data(listRange));
+  }
 
+  /**
+   * Demonstrates how to access data from a table using ranges.
+   * Many functions in the table and the vector take RangeLike objects and create ranges from them automatically. Make
+   * sure to look at that here:
+   * https://github.com/phovea/phovea_core/blob/develop/src/range/index.ts
+   * @return {Promise<void>}
+   */
+  public async accessingDataWithRanges() {
     console.log('=============================');
     console.log('RANGES AND TABLES');
     console.log('=============================');
 
     // We retrieve the columns with index 0 and one by using a range operator that we pass as a string.
     console.log('First two columns using ranges:');
-    console.log(this.table.cols('0:2'));
+    console.log(this.table.cols(range(0, 2)));
 
     console.log('Get the columns based on a list of indices:');
+    // This uses the RangeLike array property which automatically creates an index list
     console.log(this.table.cols([1, 4, 7]));
 
     console.log('A slice of the data of column 1 from index 7 to (not including) 12 as an array:');
-    // this array can be directly used to map to d3
-    console.log(await this.table.col(1).data('7:12'));
+    // this array can be directly used, e.g., to map to d3
+    console.log(await this.table.col(1).data(range(7, 12)));
+
+
+    // TODO this is unclear - how is that helpful?
+    console.log('The IDs of the rows');
+    console.log(await this.table.rowIds());
+
+    // TODO this is unclear - how is that helpful? Returns undefined
+    console.log('The rows');
+    console.log(await this.table.rows([0, 1, 2, 3]));
+
+    console.log('Accessing rows 0, 1, 2, 3');
+    console.log(await this.table.data([0, 1, 2, 3]));
+
+     console.log('Accessing the attribute 0, 1, 2 in rows 0, 1, 2, 3');
+     // we create a 2D range by joining two other ranges.  The first range defines the rows, the second the columns
+    const twoDRange = join(list([0, 1, 2, 3]),list([0,1,2]));
+    console.log(await this.table.data(twoDRange));
+
+    console.log('Accessing the attribute 0, 1, 2 in rows 0, 1, 2, 3 using objects');
+    console.log(await this.table.objects(twoDRange));
   }
 
   /**
