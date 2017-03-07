@@ -230,15 +230,13 @@ export default class UsingTable {
     // So, in a 10x100 table, I can pick columns 2, 4 and rows, 2-5 and 70-90.
     // It behaves exactly like a regular table.
 
-    // console.log('New view on a table that only contains the first two columns:');
-    // let slicedTable = table.view('(0:-1),(0:2)');
-    // console.log(slicedTable);
 
     console.log('A range with all values:');
     const fullRange = all();
     console.log(fullRange);
 
-    console.log('A range from 0 to 10 that skipse every second element:');
+
+    console.log('A range from 0 to 10 that skips every second element:');
     const selectedIndicesRange = range([0, 10, 2]);
     console.log(selectedIndicesRange);
 
@@ -249,14 +247,23 @@ export default class UsingTable {
 
     const fiveColsAllRows = join(all(), fromToRange);
     const columnSlicedTable = table.view(fiveColsAllRows);
-    // FIXME: wrong
-    console.log(columnSlicedTable.dim);
+    console.log('-----------');
     console.log('A table with five columns and all rows:');
+    console.log('-----------');
+    console.log('Dimensions:');
+    console.log(columnSlicedTable.dim);
+    console.log('Table:');
     console.log(columnSlicedTable);
+    console.log('Vectors:');
+    console.log(await columnSlicedTable.cols());
+    console.log('Data of first Vector:');
+    console.log(await columnSlicedTable.cols()[0].data());
 
 
-    // FIXME: demonstration of the row slicing bug
 
+    console.log('-----------');
+    console.log('A table with all columns and three rows:');
+    console.log('-----------');
     console.log('A range based on lists:');
     const listRange = list([0, 1, 2]);
     console.log(listRange);
