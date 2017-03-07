@@ -6,47 +6,69 @@ import {tsv} from 'd3-request';
 import {ICategoricalVector, INumericalVector} from 'phovea_core/src/vector/IVector';
 import {VALUE_TYPE_CATEGORICAL, VALUE_TYPE_INT} from 'phovea_core/src/datatype';
 import {range, list, join, Range, Range1D, all} from 'phovea_core/src/range';
+import {asVector} from '../../phovea_core/src/vector/Vector';
 
 /**
  *
  * This class demonstrates the use of a heterogeneous table.
  *
- * The relevant Phovea Classes:
+ * It is meant as a companion to the tutorial here:
+ * http://phovea.caleydo.org/tutorials/data_structure/
  *
+ * The relevant Phovea Classes:
+ * ----------------------------
+ * The Phovea table interface:
+ * https://github.com/phovea/phovea_core/blob/develop/src/table/ITable.ts
  * Accessing datasets using various functions:
  * https://github.com/phovea/phovea_core/blob/develop/src/data.ts
- * The phovea table interface:
- * https://github.com/phovea/phovea_core/blob/develop/src/table.ts
- *
- * The phovea vector:
+ * The Phovea vector:
  * https://github.com/phovea/phovea_core/blob/develop/src/vector/IVector.ts
- *
+ * Phovea ranges (see also other files in that folder):
+ * https://github.com/phovea/phovea_core/blob/develop/src/range/index.ts
  */
 export default class UsingTable {
 
+  /** The table datastructure */
+  table: ITable;
 
+  /**
+   * Calling the various methods that demonstrate the table
+   * @return {Promise<void>}
+   */
   public async demoTable() {
-    const table: ITable = await this.loadLocalData(csvUrl);
-
+    await this.loadLocalData(csvUrl);
     // Loading table from server - no server used in the demo ATM
-    // let table: ITable = await this.loadDataFromServer();
+    // await this.loadDataFromServer();
+    //await this.basicTableUsage();
+    //await this.gettingStats();
+    await this.rangesAndSlicing();
+    //await this.tableViews();
 
-    this.demoTableUsage(table);
+
   }
 
   /**
-   * Load a datset from a local file
-   * @returns {Promise<ITable>}
+   * Load a datset from a local file and stores it in this.table.
    */
   public async loadLocalData(csvURL: string) {
+    console.log('=============================');
+    console.log('Loading DATA');
+    console.log('=============================');
+
     console.log('Loading Data from the URL defined in csvUrl');
     const data = await UsingTable.tsvAsync(csvUrl);
     console.log('The data as an array of objects: ');
     console.log(data);
-    const table = asTable(data);
-    return table;
+    this.table = asTable(data);
+    console.log('The table in the ITable datastructure');
+    console.log(this.table);
   }
 
+  /**
+   * Load the data from a csv in a URL file to a data array
+   * @param url
+   * @return {Promise<any[]>} a promise for the data as an array
+   */
   private static async tsvAsync(url: string) {
     return new Promise<any[]>((resolve, reject) => {
       tsv(url, (error, data) => {
@@ -58,10 +80,9 @@ export default class UsingTable {
     });
   }
 
-
   /**
-   * This demonstrates how to retreive a table from a server.
-   * @returns {Promise<void>}
+   * This demonstrates how to retrieve a table from a server. Stores the number one artists table in this.table.
+   * See also https://github.com/phovea/phovea_core/blob/develop/src/data.ts
    */
   public async loadDataFromServer() {
     console.log('Loading Data from the a Server');
@@ -81,41 +102,30 @@ export default class UsingTable {
     console.log(table);
 
     // retrieving a dataset by it's ID
-    table = <ITable> await getById('numer-one-artists');
-
-    return table;
-
+    this.table = <ITable> await getById('numer-one-artists');
   }
 
 
   /**
-   * This demonstrates a wide variety of possible usages for the table.
-   * @param table
-   * @returns {Promise<void>}
+   * This demonstrates basic usage of the table.
+   * See also: https://github.com/phovea/phovea_core/blob/develop/src/table/ITable.ts
+   * https://github.com/phovea/phovea_core/blob/develop/src/vector/IVector.ts
    */
-  public async demoTableUsage(table: ITable) {
-
-    console.log('=============================');
-    console.log('RETRIEVING DATA');
-    console.log('=============================');
-
-    console.log('The Table as passed via parameter:');
-    console.log(table);
-
+  public async basicTableUsage() {
     console.log('=============================');
     console.log('ACCESSING METADATA');
     console.log('=============================');
 
     // Accessing the description of the dataset:
     console.log('Table description:');
-    console.log(table.desc);
+    console.log(this.table.desc);
     // Printing the name
-    console.log('Table Name: ' + table.desc.name);
+    console.log('Table Name: ' + this.table.desc.name);
 
     console.log('Artist Table description:');
-    console.log(table.desc);
+    console.log(this.table.desc);
     // Printing the name
-    console.log('Table Name: ' + table.desc.name);
+    console.log('Table Name: ' + this.table.desc.name);
 
 
     console.log('=============================');
@@ -123,7 +133,7 @@ export default class UsingTable {
     console.log('=============================');
 
     // Here we retrieve the first vector from the table.
-    const vector = table.col(0);
+    const vector = this.table.col(0);
     console.log('The first vector:');
     console.log(vector);
     console.log('Length:' + vector.length);
@@ -132,7 +142,7 @@ export default class UsingTable {
 
     // Access the data of a vector by name:
     console.log('Accessing artist column by name from Artists dataset:');
-    console.log(await table.colData('artist'));
+    console.log(await this.table.colData('artist'));
 
 
     console.log('=============================');
@@ -174,35 +184,25 @@ export default class UsingTable {
     console.log('Fourth Element: ' + fourthElement);
 
     // Here we directly access the first element in the first vector:
-    const firstValueOfFirstVector = await table.at(0, 0);
+    const firstValueOfFirstVector = await this.table.at(0, 0);
     console.log('Accessing the Table for the first element: ' + firstValueOfFirstVector);
 
-    console.log('=============================');
-    console.log('SLICING, SELECTIVE ACCESS');
-    console.log('=============================');
+  }
 
-    // We retrieve the columns with index 0 and one by using a range operator that we pass as a string.
-    console.log('First two columns using ranges:');
-    console.log(table.cols('0:2'));
-
-    console.log('Get the columns based on a list of indices:');
-    console.log(table.cols([1, 4, 7]));
-
-    console.log('A slice of the data of column 1 from index 7 to (not including) 12 as an array:');
-    // this array can be directly used to map to d3
-    console.log(await table.col(1).data('7:12'));
-
-
+  /**
+   * This demonstrates how to access statistics about the table and vectors
+   * https://github.com/phovea/phovea_core/blob/develop/src/math.ts
+   */
+  public async gettingStats() {
     console.log('=============================');
     console.log('CATEGORICAL VECTORS & STATS');
     console.log('=============================');
 
-
     console.log('The data type of the fourth column (categories):');
-    console.log(table.col(3).valuetype);
+    console.log(this.table.col(3).valuetype);
 
-    if (table.col(3).valuetype.type === VALUE_TYPE_CATEGORICAL) {
-      const catVector = <ICategoricalVector> table.col(3);
+    if (this.table.col(3).valuetype.type === VALUE_TYPE_CATEGORICAL) {
+      const catVector = <ICategoricalVector> this.table.col(3);
       console.log('The categories of the fourth column:');
       // these also contain colors that can be easily used in d3.
       console.log(catVector.valuetype.categories);
@@ -215,13 +215,90 @@ export default class UsingTable {
     console.log('NUMERICAL VECTORS & STATS');
     console.log('=============================');
 
-    if (table.col(5).valuetype.type === VALUE_TYPE_INT) {
-      const numVector = <INumericalVector> table.col(5);
+    if (this.table.col(5).valuetype.type === VALUE_TYPE_INT) {
+      const numVector = <INumericalVector> this.table.col(5);
       console.log('3rd value from the 5th vector:' + await numVector.at(3));
       console.log('Stats on a vector:');
       console.log(await numVector.stats());
     }
+  }
 
+  /**
+   * Introducing ranges that define a subset of the data and how to slice data with them
+   * https://github.com/phovea/phovea_core/blob/develop/src/range/index.ts
+   */
+  public async rangesAndSlicing() {
+
+    console.log('=============================');
+    console.log('Ranges');
+    console.log('=============================');
+
+    console.log('The Vector we use to demonstrate rages:');
+    const vector = asVector(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+    console.log(await vector.data());
+
+
+    console.log('A range with all values. Notice the isAll: true:');
+    let fullRange = all();
+    console.log(fullRange);
+    console.log('The full vector:', await vector.data(fullRange));
+
+    console.log('Alternatively, a range created via constructor with no values produces an all-value range:');
+    fullRange = new Range();
+    console.log('The full vector:', await vector.data(fullRange));
+
+    let selectedIndicesRange = range([3]);
+    console.log('A range applied to the vector starting at index 3, up to the end');
+    console.log(await vector.data(selectedIndicesRange));
+
+
+    selectedIndicesRange = range([3, 11]);
+    console.log('A range applied to the vector starting at index 3, up to (and excluding) 11');
+    console.log(await vector.data(selectedIndicesRange));
+
+    selectedIndicesRange = range([3, 11, 2]);
+    console.log('A range applied to the vector starting at index 11, up to (and excluding) 2, using every element' +
+      ' backwards');
+    console.log(await vector.data(selectedIndicesRange));
+
+        selectedIndicesRange = range([11, 2, -1]);
+    console.log('A range applied to the vector starting at index 3, up to (and excluding) 11, using every other element');
+    console.log(await vector.data(selectedIndicesRange));
+
+    selectedIndicesRange = range({from: 4, to: 12, step: 3});
+    console.log('A range using object notation applied to the vector starting at index 4, up to (and excluding)' +
+      ' 12, using every third element');
+    console.log(await vector.data(selectedIndicesRange));
+
+
+    console.log('A range defined using a list of indices (2, 5, 1, 13)');
+    let listRange = list([2, 5, 1, 13]);
+    console.log(await vector.data(listRange));
+
+    console.log('A range defined using a list of indices (13, 12, 11)');
+    listRange = list([13, 12, 11]);
+    console.log(await vector.data(listRange));
+
+    console.log('=============================');
+    console.log('RANGES AND TABLES');
+    console.log('=============================');
+
+    // We retrieve the columns with index 0 and one by using a range operator that we pass as a string.
+    console.log('First two columns using ranges:');
+    console.log(this.table.cols('0:2'));
+
+    console.log('Get the columns based on a list of indices:');
+    console.log(this.table.cols([1, 4, 7]));
+
+    console.log('A slice of the data of column 1 from index 7 to (not including) 12 as an array:');
+    // this array can be directly used to map to d3
+    console.log(await this.table.col(1).data('7:12'));
+  }
+
+  /**
+   * Working with table views that allow you to slice and sort tables
+   */
+  public async tableViews() {
     console.log('=============================');
     console.log('VIEWS');
     console.log('=============================');
@@ -231,22 +308,13 @@ export default class UsingTable {
     // It behaves exactly like a regular table.
 
 
-    console.log('A range with all values:');
-    const fullRange = all();
-    console.log(fullRange);
-
-
-    console.log('A range from 0 to 10 that skips every second element:');
-    const selectedIndicesRange = range([0, 10, 2]);
-    console.log(selectedIndicesRange);
-
     console.log('A range with from-to values:');
     const fromToRange = range(0, 5);
     console.log(fromToRange);
 
 
     const fiveColsAllRows = join(all(), fromToRange);
-    const columnSlicedTable = table.view(fiveColsAllRows);
+    const columnSlicedTable = this.table.view(fiveColsAllRows);
     console.log('-----------');
     console.log('A table with five columns and all rows:');
     console.log('-----------');
@@ -258,7 +326,6 @@ export default class UsingTable {
     console.log(await columnSlicedTable.cols());
     console.log('Data of first Vector:');
     console.log(await columnSlicedTable.cols()[0].data());
-
 
 
     console.log('-----------');
@@ -278,7 +345,7 @@ export default class UsingTable {
     console.log(mutiDimRange);
 
     console.log('This is supposed to slice the table by preserving ALL columns and the rows 0,1,2:');
-    const slicedTable = table.view(mutiDimRange);
+    const slicedTable = this.table.view(mutiDimRange);
     console.log(slicedTable);
 
     console.log('The size of the Table, expecting 3, 12 as in 12 columns and 3 rows. Is WRONG 12, 14 - no idea where the 14 came from');
