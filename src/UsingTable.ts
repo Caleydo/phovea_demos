@@ -36,20 +36,24 @@ export default class UsingTable {
    * @return {Promise<void>}
    */
   public async demoTable() {
+    // change the second parameter to false if you want to see console output
     await this.loadLocalData(csvUrl, true);
     // Loading table from server - no server used in the demo ATM
     // await this.loadDataFromServer();
-    //await this.basicTableUsage();
-    //await this.gettingStats();
-    //await this.rangesAndSlicing();
+    await this.basicTableUsage();
+    await this.gettingStats();
+    await this.rangesAndSlicing();
     await this.accessingDataWithRanges();
-    //await this.tableViews();
+    await this.tableViews();
   }
 
   /**
    * Load a datset from a local file and stores it in this.table.
    */
   public async loadLocalData(csvURL: string, silent: boolean = false) {
+
+    // TODO this doesn't seem to care about the index.json, right?
+
     if (!silent) {
       console.log('=============================');
       console.log('Loading DATA');
@@ -128,8 +132,9 @@ export default class UsingTable {
 
     console.log('Artist Table description:');
     console.log(this.table.desc);
-    // Printing the name
-    console.log('Table Name: ' + this.table.desc.name);
+
+    console.log('The dimensions of the table [rows, columns]:')
+    console.log(this.table.dim);
 
 
     console.log('=============================');
@@ -317,20 +322,20 @@ export default class UsingTable {
     console.log(await this.table.col(1).data(range(7, 12)));
 
 
-    // TODO this is unclear - how is that helpful?
+    // TODO this is unclear - how is that helpful? - could be because these are not defined in a local table?
     console.log('The IDs of the rows');
     console.log(await this.table.rowIds());
 
-    // TODO this is unclear - how is that helpful? Returns undefined
+    // TODO this is unclear - how is that helpful? Returns undefined - could be because these are not defined in a local table?
     console.log('The rows');
     console.log(await this.table.rows([0, 1, 2, 3]));
 
     console.log('Accessing rows 0, 1, 2, 3');
     console.log(await this.table.data([0, 1, 2, 3]));
 
-     console.log('Accessing the attribute 0, 1, 2 in rows 0, 1, 2, 3');
-     // we create a 2D range by joining two other ranges.  The first range defines the rows, the second the columns
-    const twoDRange = join(list([0, 1, 2, 3]),list([0,1,2]));
+    console.log('Accessing the attribute 0, 1, 2 in rows 0, 1, 2, 3');
+    // we create a 2D range by joining two other ranges.  The first range defines the rows, the second the columns
+    const twoDRange = join(list([0, 1, 2, 3]), list([0, 1, 2]));
     console.log(await this.table.data(twoDRange));
 
     console.log('Accessing the attribute 0, 1, 2 in rows 0, 1, 2, 3 using objects');
@@ -338,7 +343,8 @@ export default class UsingTable {
   }
 
   /**
-   * Working with table views that allow you to slice and sort tables
+   * Working with table views that allow you to slice and sort tables and work with the views just like with regular
+   * tables
    */
   public async tableViews() {
     console.log('=============================');
@@ -349,81 +355,61 @@ export default class UsingTable {
     // So, in a 10x100 table, I can pick columns 2, 4 and rows, 2-5 and 70-90.
     // It behaves exactly like a regular table.
 
-
-    console.log('A range with from-to values:');
-    const fromToRange = range(0, 5);
-    console.log(fromToRange);
-
-
-    const fiveColsAllRows = join(all(), fromToRange);
+    // We create a range for all rows and columns 0 to (excluding) 5
+    const fiveColsAllRows = join(all(), range(0, 5));
     const columnSlicedTable = this.table.view(fiveColsAllRows);
-    console.log('-----------');
-    console.log('A table with five columns and all rows:');
-    console.log('-----------');
-    console.log('Dimensions:');
-    console.log(columnSlicedTable.dim);
+    console.log('A table view with five columns and all rows:');
     console.log('Table:');
     console.log(columnSlicedTable);
+    console.log('Data:');
+    console.log(await columnSlicedTable.data());
+    console.log('The table view\'s dimensions [rows, columns], expecting [12, 5]');
+    console.log(columnSlicedTable.dim);
+
     console.log('Vectors:');
     console.log(await columnSlicedTable.cols());
-    console.log('Data of first Vector:');
-    console.log(await columnSlicedTable.cols()[0].data());
+    console.log('Data of the second Vector:');
+    console.log(await columnSlicedTable.cols()[1].data());
 
 
     console.log('-----------');
-    console.log('A table with all columns and three rows:');
+    console.log('A table with all columns and rows 4, 2 and 6 (in that order)');
     console.log('-----------');
-    console.log('A range based on lists:');
-    const listRange = list([0, 1, 2]);
-    console.log(listRange);
+    const threeRowsAllCols = join(list([4, 2, 6]), all());
+    const threeRowsTable = this.table.view(threeRowsAllCols);
+    console.log(threeRowsTable);
 
-    const allRange = all();
-    console.log(allRange);
+    console.log('Data:');
+    console.log(await threeRowsTable.data());
 
-    // We join two ranges so that we can create a TableView following the convention, columns first, rows second
-    // Here we define that we want to keep all columns but only the rows 0, 1, 2
-    const mutiDimRange = join(listRange, allRange);
-    console.log('The multidimensional range, rows first, column second:');
-    console.log(mutiDimRange);
+    console.log('The size of the table [rows, cols], expecting [3, 14]');
+    console.log(threeRowsTable.dim);
 
-    console.log('This is supposed to slice the table by preserving ALL columns and the rows 0,1,2:');
-    const slicedTable = this.table.view(mutiDimRange);
-    console.log(slicedTable);
+    console.log('Data of the first Vector:');
+    console.log(await threeRowsTable.cols()[0].data());
 
-    console.log('The size of the Table, expecting 3, 12 as in 12 columns and 3 rows. Is WRONG 12, 14 - no idea where the 14 came from');
-    console.log(slicedTable.dim);
-
-    console.log('The length of the first vector, expecting 3, is WRONG 12');
-
-    const myFCol = await slicedTable.cols()[0];
-    console.log(await myFCol.data(new Range()));
-
-    const columns = slicedTable.cols();
-    console.log(columns);
-
-    // if (columns[2].valuetype.type === VALUE_TYPE_CATEGORICAL) {
-    //   const catVector = <ICategoricalVector> table.col(3);
-    //   console.log('The categories of the fourth column out of a sliced table:');
-    //   // these also contain colors that can be easily used in d3.
-    //   console.log(catVector.valuetype.categories);
-    //   console.log('The histogram:');
-    //   console.log(await catVector.hist());
-    // }
-
-    // const stringSlicedTable = table.view('(0,3),(0,5)');
-    // console.log(stringSlicedTable);
-    //
-    // console.log('The size of the String Sliced Table, expecting 12, 3 as in 12 columns and 3 rows. Is WRONG 12, 14 - no idea where the 14 came from');
-    // console.log(stringSlicedTable.dim);
-    //
-    // console.log('The length of the first vector, expecting 3, is WRONG 12');
-    // console.log(await stringSlicedTable.cols());
-    //
-    // const myVector = await stringSlicedTable.col(1);
-    //
-    // console.log(myVector.dim);
+    console.log('Data of the second Vector:');
+    console.log(await threeRowsTable.cols()[1].data());
 
 
+    console.log('-----------');
+    console.log('A table with rows 4, 2, 6 and columns 0, 1 (in that order)');
+    console.log('-----------');
+    const threeRowsTwoCols = join(list([4, 2, 6]), range(0,2));
+    const threeRowsTwoColsTable = this.table.view(threeRowsTwoCols);
+    console.log(threeRowsTwoColsTable);
+
+    console.log('Data:');
+    console.log(await threeRowsTwoColsTable.data());
+
+    console.log('The size of the table [rows, cols], expecting [3, 2]');
+    console.log(threeRowsTwoColsTable.dim);
+
+    console.log('Data of the first Vector:');
+    console.log(await threeRowsTwoColsTable.cols()[0].data());
+
+    console.log('Data of the second Vector:');
+    console.log(await threeRowsTwoColsTable.cols()[1].data());
   }
 }
 
