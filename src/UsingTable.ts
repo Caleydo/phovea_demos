@@ -37,9 +37,11 @@ export default class UsingTable {
    */
   public async demoTable() {
     // change the second parameter to false if you want to see console output
-    await this.loadLocalData(csvUrl, true);
+    await this.loadLocalData(true);
     // Loading table from server - no server used in the demo ATM
     // await this.loadDataFromServer();
+
+    // comment out the things you don't need to clean up console output
     await this.basicTableUsage();
     await this.gettingStats();
     await this.rangesAndSlicing();
@@ -48,9 +50,9 @@ export default class UsingTable {
   }
 
   /**
-   * Load a datset from a local file and stores it in this.table.
+   * Load a dataset from a local file and stores it in this.table.
    */
-  public async loadLocalData(csvURL: string, silent: boolean = false) {
+  public async loadLocalData(silent: boolean = false) {
 
     // TODO this doesn't seem to care about the index.json, right?
 
@@ -61,7 +63,7 @@ export default class UsingTable {
 
       console.log('Loading Data from the URL defined in csvUrl');
     }
-    const data = await UsingTable.tsvAsync(csvUrl);
+    const data: any[] = await UsingTable.tsvAsync(csvUrl);
     this.table = asTable(data);
 
     if (!silent) {
@@ -102,12 +104,12 @@ export default class UsingTable {
 
     // we could use those dataset to filter them based on their description and pick the one(s) we're interested in
     // here we pick the first dataset and cast it to ITable - by default the datasets are returned as IDataType
-    let table: ITable = <ITable> allDatasets[0];
+    let tempTable = allDatasets[0];
 
     // retrieving a dataset by name. Note that only the first dataset will be returned.
-    table = <ITable> await getFirstByName('Artists');
+    tempTable = <ITable> await getFirstByName('Artists');
     console.log('Artist dataset retrieved by name:');
-    console.log(table);
+    console.log(tempTable);
 
     // retrieving a dataset by it's ID
     this.table = <ITable> await getById('numer-one-artists');
@@ -133,7 +135,7 @@ export default class UsingTable {
     console.log('Artist Table description:');
     console.log(this.table.desc);
 
-    console.log('The dimensions of the table [rows, columns]:')
+    console.log('The dimensions of the table [rows, columns]:');
     console.log(this.table.dim);
 
 
@@ -414,8 +416,7 @@ export default class UsingTable {
 }
 
 /**
- * Method to create a new graphData instance
- * @returns {graphData}
+ * Method to create a new table demo instance
  */
 export function create() {
   return new UsingTable();
