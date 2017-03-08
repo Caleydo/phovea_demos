@@ -248,7 +248,7 @@ export default class UsingTable {
     console.log('Ranges');
     console.log('=============================');
 
-    console.log('The Vector we use to demonstrate rages:');
+    console.log('The Vector we use to demonstrate ranges:');
     const vector = asVector(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
     console.log(await vector.data());
 
