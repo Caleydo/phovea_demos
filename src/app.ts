@@ -8,7 +8,7 @@ import {HELLO_WORLD} from './language';
 
 // mark the core to work offline - comment the next two lines out if working with a server!
 import {init as initCore} from 'phovea_core/src';
-initCore({offline: true});
+initCore({offline: false});
 
 /**
  * The main class for the App app

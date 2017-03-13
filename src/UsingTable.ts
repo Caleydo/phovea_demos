@@ -1,7 +1,7 @@
 import {ITable, asTable} from 'phovea_core/src/table';
 import {IAnyVector} from 'phovea_core/src/vector';
 import {list as listData, getFirstByName, get as getById} from 'phovea_core/src/data';
-import * as csvUrl from 'file-loader!../data/number_one_artists.csv';
+//import * as csvUrl from 'file-loader!../data/number_one_artists.csv';
 import {tsv} from 'd3-request';
 import {ICategoricalVector, INumericalVector} from 'phovea_core/src/vector/IVector';
 import {VALUE_TYPE_CATEGORICAL, VALUE_TYPE_INT} from 'phovea_core/src/datatype';
@@ -37,42 +37,42 @@ export default class UsingTable {
    */
   public async demoTable() {
     // change the second parameter to false if you want to see console output
-    await this.loadLocalData(true);
+    //await this.loadLocalData(true);
     // Loading table from server - no server used in the demo ATM
-    // await this.loadDataFromServer();
+    await this.loadDataFromServer();
 
     // comment out the things you don't need to clean up console output
-    await this.basicTableUsage();
-    await this.gettingStats();
-    await this.rangesAndSlicing();
-    await this.accessingDataWithRanges();
-    await this.tableViews();
+    // await this.basicTableUsage();
+     await this.gettingStats();
+    // await this.rangesAndSlicing();
+    // await this.accessingDataWithRanges();
+    // await this.tableViews();
   }
 
   /**
    * Load a dataset from a local file and stores it in this.table.
    */
-  public async loadLocalData(silent: boolean = false) {
-
-    // TODO this doesn't seem to care about the index.json, right?
-
-    if (!silent) {
-      console.log('=============================');
-      console.log('Loading DATA');
-      console.log('=============================');
-
-      console.log('Loading Data from the URL defined in csvUrl');
-    }
-    const data: any[] = await UsingTable.tsvAsync(csvUrl);
-    this.table = asTable(data);
-
-    if (!silent) {
-      console.log('The data as an array of objects: ');
-      console.log(data);
-      console.log('The table in the ITable datastructure');
-      console.log(this.table);
-    }
-  }
+  // public async loadLocalData(silent: boolean = false) {
+  //
+  //   // TODO this doesn't seem to care about the index.json, right?
+  //
+  //   if (!silent) {
+  //     console.log('=============================');
+  //     console.log('Loading DATA');
+  //     console.log('=============================');
+  //
+  //     console.log('Loading Data from the URL defined in csvUrl');
+  //   }
+  //   const data: any[] = await UsingTable.tsvAsync(csvUrl);
+  //   this.table = asTable(data);
+  //
+  //   if (!silent) {
+  //     console.log('The data as an array of objects: ');
+  //     console.log(data);
+  //     console.log('The table in the ITable datastructure');
+  //     console.log(this.table);
+  //   }
+  // }
 
   /**
    * Load the data from a csv in a URL file to a data array
@@ -104,15 +104,15 @@ export default class UsingTable {
 
     // we could use those dataset to filter them based on their description and pick the one(s) we're interested in
     // here we pick the first dataset and cast it to ITable - by default the datasets are returned as IDataType
-    let tempTable = allDatasets[0];
-
+    let tempTable: ITable;
     // retrieving a dataset by name. Note that only the first dataset will be returned.
     tempTable = <ITable> await getFirstByName('Artists');
+    console.log(await tempTable.cols()[1].data());
     console.log('Artist dataset retrieved by name:');
     console.log(tempTable);
 
     // retrieving a dataset by it's ID
-    this.table = <ITable> await getById('numer-one-artists');
+    this.table = <ITable> await getById('number-one-artists');
   }
 
 
@@ -231,11 +231,14 @@ export default class UsingTable {
     console.log('NUMERICAL VECTORS & STATS');
     console.log('=============================');
 
-    if (this.table.col(5).valuetype.type === VALUE_TYPE_INT) {
-      const numVector = <INumericalVector> this.table.col(5);
-      console.log('3rd value from the 5th vector:' + await numVector.at(3));
+    if (this.table.col(11).valuetype.type === VALUE_TYPE_INT) {
+      const numVector = <INumericalVector> this.table.col(11);
+      console.log(await numVector.data());
+      console.log('3rd value from the 11th vector:' + await numVector.at(3));
+      console.log('12th value from the 11th vector (missing value):' + await numVector.at(11));
       console.log('Stats on a vector:');
       console.log(await numVector.stats());
+      console.log(await numVector.hist());
     }
   }
 
