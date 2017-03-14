@@ -43,10 +43,11 @@ export default class UsingTable {
 
     // comment out the things you don't need to clean up console output
     // await this.basicTableUsage();
-     await this.gettingStats();
+    await this.gettingStats();
     // await this.rangesAndSlicing();
     // await this.accessingDataWithRanges();
     // await this.tableViews();
+    await this.idsAndIndices();
   }
 
   /**
@@ -326,15 +327,6 @@ export default class UsingTable {
     // this array can be directly used, e.g., to map to d3
     console.log(await this.table.col(1).data(range(7, 12)));
 
-
-    // TODO this is unclear - how is that helpful? - could be because these are not defined in a local table?
-    console.log('The IDs of the rows');
-    console.log(await this.table.rowIds());
-
-    // TODO this is unclear - how is that helpful? Returns undefined - could be because these are not defined in a local table?
-    console.log('The rows');
-    console.log(await this.table.rows([0, 1, 2, 3]));
-
     console.log('Accessing rows 0, 1, 2, 3');
     console.log(await this.table.data([0, 1, 2, 3]));
 
@@ -400,7 +392,7 @@ export default class UsingTable {
     console.log('-----------');
     console.log('A table with rows 4, 2, 6 and columns 0, 1 (in that order)');
     console.log('-----------');
-    const threeRowsTwoCols = join(list([4, 2, 6]), range(0,2));
+    const threeRowsTwoCols = join(list([4, 2, 6]), range(0, 2));
     const threeRowsTwoColsTable = this.table.view(threeRowsTwoCols);
     console.log(threeRowsTwoColsTable);
 
@@ -415,6 +407,40 @@ export default class UsingTable {
 
     console.log('Data of the second Vector:');
     console.log(await threeRowsTwoColsTable.cols()[1].data());
+  }
+
+  /**
+   * Demonstrate the use of row names, IDs and indices and the conversions between them.
+   *
+   *
+   * @return {Promise<void>}
+   */
+  public async idsAndIndices() {
+
+    console.log(this.table.idtype);
+
+    console.log('The IDs of the rows, represented as a range');
+    const rowIDRange = await this.table.rowIds();
+    console.log(rowIDRange);
+
+    console.log('Converting system IDs to row names:');
+    console.log(await this.table.idtype.unmap(rowIDRange));
+
+    console.log('The row names (string IDs) from indices');
+    console.log(await this.table.rows([0, 1, 2, 3]));
+
+    const rowNames = ['rih', 'bri', 'whi'];
+
+    console.log('Converting an array or row names to row IDs:');
+    const convertedRowIDs = await this.table.idtype.map(rowNames);
+    console.log(convertedRowIDs);
+
+    console.log('Creating a table view based on IDs:');
+    const rowSlicedTable = await this.table.idView(convertedRowIDs);
+    console.log('Table:');
+    console.log(rowSlicedTable);
+    console.log('Data: FIXME this is wrong, missing Rhianna ');
+    console.log(await rowSlicedTable.data());
   }
 }
 
