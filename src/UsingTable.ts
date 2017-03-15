@@ -234,10 +234,11 @@ export default class UsingTable {
 
     if (this.table.col(11).valuetype.type === VALUE_TYPE_INT) {
       const numVector = <INumericalVector> this.table.col(11);
+      console.log('A Vector of numerical data that also has NAN values - FIXME this is worng - should be NAN not empty string.');
       console.log(await numVector.data());
       console.log('3rd value from the 11th vector:' + await numVector.at(3));
       console.log('12th value from the 11th vector (missing value):' + await numVector.at(11));
-      console.log('Stats on a vector:');
+      console.log('Stats on a vector: FIXME this is wrong - empty strings are treated as 0, hence min is 0 and not 11');
       console.log(await numVector.stats());
       console.log(await numVector.hist());
     }
@@ -253,7 +254,8 @@ export default class UsingTable {
     console.log('=============================');
 
     console.log('The Vector we use to demonstrate ranges:');
-    const vector = asVector(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+    const vector = asVector(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
     console.log(await vector.data());
 
 
@@ -417,6 +419,11 @@ export default class UsingTable {
    */
   public async idsAndIndices() {
 
+    console.log('=============================');
+    console.log('WORKING WITH IDS AND INDICES');
+    console.log('=============================');
+
+    console.log('The ID Type of the table');
     console.log(this.table.idtype);
 
     console.log('The IDs of the rows, represented as a range');
