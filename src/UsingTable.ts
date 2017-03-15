@@ -48,6 +48,7 @@ export default class UsingTable {
     // await this.accessingDataWithRanges();
     // await this.tableViews();
     await this.idsAndIndices();
+    await this.demoFilter();
   }
 
   /**
@@ -414,7 +415,6 @@ export default class UsingTable {
   /**
    * Demonstrate the use of row names, IDs and indices and the conversions between them.
    *
-   *
    * @return {Promise<void>}
    */
   public async idsAndIndices() {
@@ -448,6 +448,43 @@ export default class UsingTable {
     console.log(rowSlicedTable);
     console.log('Data: FIXME this is wrong, missing Rhianna ');
     console.log(await rowSlicedTable.data());
+  }
+
+  /**
+   * This function demonstrates how to filter a vector and a table by a property of the data
+   * @return {Promise<void>}
+   */
+  public async demoFilter() {
+    console.log('=============================');
+    console.log('FILTERING BASED ON DATA');
+    console.log('=============================');
+    console.log('Extracting the Number of Studio Albums column:');
+    let studioAlbums: INumericalVector;
+    this.table.cols().forEach((vector: IAnyVector) => {
+      if (vector.desc.name === 'studio albums (count)') {
+        studioAlbums = <INumericalVector>vector;
+      }
+    });
+    console.log(await studioAlbums.data());
+
+    if (studioAlbums == null) {
+      return;
+    }
+
+    const filteredAlbums: INumericalVector = await studioAlbums.filter((d: number, i: number) => {
+      if (d > 8) {
+        return true;
+      }
+      return false;
+    });
+    console.log('The data of the vector filterd by number of albums > 8');
+    console.log(await filteredAlbums.data());
+
+    const ids = await filteredAlbums.ids();
+
+    const tableView: ITable = await this.table.idView(ids);
+    console.log('The data of the table filtered by number of albums > 8');
+    console.log(await tableView.data());
   }
 }
 
