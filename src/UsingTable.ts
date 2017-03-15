@@ -44,7 +44,7 @@ export default class UsingTable {
     // comment out the things you don't need to clean up console output
     // await this.basicTableUsage();
     await this.gettingStats();
-    // await this.rangesAndSlicing();
+    await this.rangesAndSlicing();
     // await this.accessingDataWithRanges();
     // await this.tableViews();
     await this.idsAndIndices();
@@ -263,6 +263,9 @@ export default class UsingTable {
     console.log('A range with all values. Notice the isAll: true:');
     let fullRange = all();
     console.log(fullRange);
+    console.log('Showing the indices in a range: FIXMEEE broken - empty list');
+    console.log(fullRange.dim(0).asList());
+
     console.log('The full vector:', await vector.data(fullRange));
 
     console.log('Alternatively, a range created via constructor with no values produces an all-value range:');
@@ -275,6 +278,8 @@ export default class UsingTable {
 
 
     selectedIndicesRange = range(3, 11);
+    console.log('Showing the indices of a range applied to the vector starting at index 3, up to (and excluding) 11');
+    console.log(selectedIndicesRange.dim(0).asList());
     console.log('A range applied to the vector starting at index 3, up to (and excluding) 11');
     console.log(await vector.data(selectedIndicesRange));
 
