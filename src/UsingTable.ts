@@ -43,11 +43,11 @@ export default class UsingTable {
     await this.loadDataFromServer();
 
     // comment out the things you don't need to clean up console output
-    // await this.basicTableUsage();
+    await this.basicTableUsage();
     await this.gettingStats();
     await this.rangesAndSlicing();
-    // await this.accessingDataWithRanges();
-    // await this.tableViews();
+    await this.accessingDataWithRanges();
+    await this.tableViews();
     await this.idsAndIndices();
     await this.demoFilter();
   }
@@ -240,7 +240,7 @@ export default class UsingTable {
       console.log(await numVector.data());
       console.log('3rd value from the 11th vector:' + await numVector.at(3));
       console.log('12th value from the 11th vector (missing value):' + await numVector.at(11));
-      console.log('Stats on a vector: FIXME this is wrong - empty strings are treated as 0, hence min is 0 and not 11');
+      console.log('Stats on a vector. Note the NAN values');
       console.log(await numVector.stats());
       console.log(await numVector.hist());
     }
