@@ -6,7 +6,8 @@ import {tsv} from 'd3-request';
 import {ICategoricalVector, INumericalVector} from 'phovea_core/src/vector/IVector';
 import {VALUE_TYPE_CATEGORICAL, VALUE_TYPE_INT} from 'phovea_core/src/datatype';
 import {range, list, join, Range, Range1D, all} from 'phovea_core/src/range';
-import {asVector} from '../../phovea_core/src/vector/Vector';
+import {asVector} from 'phovea_core/src/vector/Vector';
+import {argFilter} from 'phovea_core/src/';
 
 /**
  *
@@ -263,9 +264,6 @@ export default class UsingTable {
     console.log('A range with all values. Notice the isAll: true:');
     let fullRange = all();
     console.log(fullRange);
-    console.log('Showing the indices in a range: FIXMEEE broken - empty list');
-    console.log(fullRange.dim(0).asList());
-
     console.log('The full vector:', await vector.data(fullRange));
 
     console.log('Alternatively, a range created via constructor with no values produces an all-value range:');
@@ -482,7 +480,7 @@ export default class UsingTable {
       }
       return false;
     });
-    console.log('The data of the vector filterd by number of albums > 8');
+    console.log('The data of the vector filtered by number of albums > 8');
     console.log(await filteredAlbums.data());
 
     const ids = await filteredAlbums.ids();
@@ -490,6 +488,20 @@ export default class UsingTable {
     const tableView: ITable = await this.table.idView(ids);
     console.log('The data of the table filtered by number of albums > 8');
     console.log(await tableView.data());
+
+    console.log('-----------');
+    console.log('Using argFilter to get the indices of a filter operation:');
+    console.log('-----------');
+    const albumData = await studioAlbums.data();
+    const indices = argFilter(albumData, (d) => d > 8);
+    console.log('The data of the table filterd by number of albums > 8');
+    console.log(await this.table.data(indices));
+
+    console.log('-----------');
+    console.log('Using the filter operation of the range');
+    console.log('-----------');
+    // list creates an index range, and we apply this list to the array of data passed
+    console.log(list(indices).filter(await this.table.data()));
   }
 }
 
