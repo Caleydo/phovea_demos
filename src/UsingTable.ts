@@ -236,7 +236,7 @@ export default class UsingTable {
 
     if (this.table.col(11).valuetype.type === VALUE_TYPE_INT) {
       const numVector = <INumericalVector> this.table.col(11);
-      console.log('A Vector of numerical data that also has NAN values - FIXME this is worng - should be NAN not empty string.');
+      console.log('A Vector of numerical data that also has NAN values:');
       console.log(await numVector.data());
       console.log('3rd value from the 11th vector:' + await numVector.at(3));
       console.log('12th value from the 11th vector (missing value):' + await numVector.at(11));
@@ -449,7 +449,7 @@ export default class UsingTable {
     const rowSlicedTable = await this.table.idView(convertedRowIDs);
     console.log('Table:');
     console.log(rowSlicedTable);
-    console.log('Data: FIXME this is wrong, missing Rhianna ');
+    console.log('Data:');
     console.log(await rowSlicedTable.data());
   }
 
